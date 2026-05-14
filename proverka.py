@@ -43,16 +43,25 @@ class Check:
             print('Неправильная структура файла: ожидается таблица')
         
 
-    def check_header(self, expected_columns):
+    def check_header(self, expected_columns, expected_type):
         try:
             actual_columns = list(self.df.columns)
-            if not all(col in actual_columns for col in expected_columns):
-                missing_columns = [col for col in expected_columns if col not in actual_columns]
+            missing_columns = [col for col in expected_columns if col not in actual_columns]
+            if missing_columns:
                 raise ValueError(f"Несоответствие структуры данных. Отсутствуют столбцы: {missing_columns}")
+            errors = []
+            for col in expected_columns:
+                actual_type = str(self.df[col].dtype)
+                if actual_type != expected_type:
+                    errors.append(f"В столбце '{col}' тип данных не соответствует ожидаемому. "
+                        f"Ожидается: {expected_type}, Фактически: {actual_type}")  
+            if errors:
+                raise ValueError("\n".join(errors))
+    
             print('Заголовок корректен')
         except AttributeError:
             print('Файл не был открыт')
         except ValueError as e:
-            print('Ошибка в заголовке: {e}')
+            print(f'Ошибка в заголовке: {e}')
 
 
