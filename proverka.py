@@ -56,22 +56,19 @@ class Check:
             print('Ошибка в первом ряду: заголовок не соответствует ожидаемому')
 
     def check_data_types(self):
-        if self.df is None:
-            print('Файл не был открыт')
-            return False
         errors = []
 
         # Проверка того что с числами
         cols = ['Сумма операции', 'Сумма cash-back']
         existing_cols = [c for c in cols if c in self.df.columns]
-
+        #https://www.pandas.net.cn/docs/reference/api/pandas.to_numeric.html
         #пытаемся преобразовать значения в выбранных столбцах (existing_cols) датафрейма в числовой тип.
-        #параметр errors='coerce' говорит, что значения, которые не могут быть преобразованы в число, должны быть заменены на NaN(не число). 
+        #gараметр errors='coerce' говорит, что значения, которые не могут быть преобразованы в число, должны быть заменены на NaN(не число). 
         #метод .isna().any() проверяет, есть ли хотя бы одно значение NaN в любом из этих столбцов.
         check = self.df[existing_cols].apply(pd.to_numeric, errors='coerce').isna().any()
 
         # ключ (col) представляет собой название столбца, а значение (has_error) указывает на наличие ошибки. 
-        # код итерирует по этим парам, чтобы определить, какие столбцы содержат некорректные данные
+        # rод итерирует по этим парам, чтобы определить, какие столбцы содержат некорректные данные
         for col, has_error in check.items():
             if has_error:
                 errors.append(f'{col} — содержит нечисловые значения')
@@ -80,6 +77,7 @@ class Check:
 
         # Проверка даты
         try:
+            #https://www.pandas.net.cn/docs/reference/api/pandas.to_datetime.html#pandas.to_datetime
             pd.to_datetime(self.df['Дата оплаты'], format='%d-%m-%Y', errors='raise')
             print('Дата оплаты — все норм')
         except:
@@ -87,6 +85,7 @@ class Check:
 
         # Проверка времени
         try:
+            
             pd.to_datetime(self.df['Время оплаты'], format='%H:%M:%S', errors='raise')
             print('Время оплаты — все норм')
         except:
